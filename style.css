@@ -186,6 +186,50 @@ h1 {
   min-height: 150px;
 }
 
+.cloud-card .card-header {
+  align-items: flex-start;
+}
+
+.remote-form {
+  gap: 1.25rem;
+}
+
+.remote-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.remote-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.remote-status {
+  min-height: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.remote-status[data-tone="success"] {
+  color: #0d8b5b;
+}
+
+.remote-status[data-tone="error"] {
+  color: #d64550;
+}
+
+.remote-status[data-tone="warning"] {
+  color: #c4871c;
+}
+
+.auto-sync {
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .form-actions {
   display: flex;
   gap: 0.75rem;
@@ -454,6 +498,12 @@ button.delete {
   color: var(--muted);
   font-size: 0.85rem;
   margin-top: 0.75rem;
+}
+
+.helper-text {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 0;
 }
 
 @media (max-width: 640px) {

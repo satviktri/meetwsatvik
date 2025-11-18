@@ -111,6 +111,55 @@
                 <p>No previous meetings logged yet. Add your first note to build momentum.</p>
               </div>
             </section>
+
+            <section class="card cloud-card">
+              <div class="card-header">
+                <div>
+                  <p class="eyebrow">Cloud backup</p>
+                  <h2>GitHub sync</h2>
+                </div>
+                <p class="muted">Store a JSON file in any repo folder so your history travels with you.</p>
+              </div>
+              <form id="remoteSyncForm" class="form remote-form">
+                <div class="remote-grid">
+                  <label>
+                    Owner or org
+                    <input type="text" id="remoteOwner" placeholder="satvik" />
+                  </label>
+                  <label>
+                    Repository
+                    <input type="text" id="remoteRepo" placeholder="meeting-notebook" />
+                  </label>
+                  <label>
+                    Branch
+                    <input type="text" id="remoteBranch" placeholder="main" />
+                  </label>
+                  <label>
+                    Folder path
+                    <input type="text" id="remoteFolder" placeholder="meeting-notes" />
+                  </label>
+                  <label>
+                    File name
+                    <input type="text" id="remoteFile" placeholder="meetings.json" />
+                  </label>
+                  <label>
+                    Personal access token
+                    <input type="password" id="remoteToken" placeholder="ghp_..." autocomplete="off" />
+                  </label>
+                </div>
+                <label class="toggle auto-sync">
+                  <input type="checkbox" id="remoteAutoSync" />
+                  <span>Auto-sync previous meetings when they change</span>
+                </label>
+                <div class="remote-actions">
+                  <button type="submit" class="ghost-button">Save settings</button>
+                  <button type="button" id="pullRemote" class="ghost-button subtle">Pull from GitHub</button>
+                  <button type="button" id="pushRemote" class="primary">Sync to GitHub</button>
+                </div>
+                <p class="remote-status" id="remoteStatus" aria-live="polite"></p>
+                <p class="helper-text">Tokens stay in this browser only. Generate one with repo scope for private repositories.</p>
+              </form>
+            </section>
           </div>
         </section>
 

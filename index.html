@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Meeting Noteboook</title>
+    <title>Meet with Satvik</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -17,7 +18,7 @@
       <header class="app-header">
         <div>
           <p class="eyebrow">Meetings hub</p>
-          <h1>Meeting Notebook</h1>
+          <h1>Meet with Satvik</h1>
           <p class="subtitle">Capture notes, keep track of action items, and never lose your side ideas again.</p>
         </div>
         <div class="header-actions">
@@ -46,7 +47,7 @@
 
       <main class="tab-panels">
         <section class="panel" id="tab-meetings" role="tabpanel">
-          <div class="panel-grid">
+          <div class="panel-grid meetings-layout">
             <section class="card">
               <div class="card-header">
                 <div>
@@ -55,10 +56,10 @@
                 </div>
                 <button id="templateBtn" class="ghost-button">Load template</button>
               </div>
-              <form id="meetingForm" class="form">
+              <form id="meetingForm" class="form meeting-form">
                 <label>
                   Meeting title
-                  <input type="text" id="meetingTitle" required placeholder="Weekly sync" />
+                  <input type="text" id="meetingTitle" required placeholder="Meet with Satvik" />
                 </label>
                 <label>
                   Date & time
@@ -75,12 +76,16 @@
                   </select>
                 </label>
                 <label>
+                  Who did you meet?
+                  <input type="text" id="meetingPeople" placeholder="Satvik, Priya" />
+                </label>
+                <label>
                   Highlights
-                  <textarea id="meetingSummary" rows="4" placeholder="Key takeaways..."></textarea>
+                  <textarea id="meetingSummary" rows="6" placeholder="Key takeaways..."></textarea>
                 </label>
                 <label>
                   Action items (one per line)
-                  <textarea id="meetingActions" rows="4" placeholder="Write actions with owners"></textarea>
+                  <textarea id="meetingActions" rows="6" placeholder="Write actions with owners"></textarea>
                 </label>
                 <button type="submit" class="primary">Save note</button>
               </form>
@@ -92,7 +97,12 @@
                   <p class="eyebrow">History</p>
                   <h2>Recent meetings</h2>
                 </div>
-                <input type="search" id="meetingSearch" placeholder="Search" />
+                <div class="meeting-tools">
+                  <select id="peopleFilter" disabled>
+                    <option value="all">All people</option>
+                  </select>
+                  <input type="search" id="meetingSearch" placeholder="Search" />
+                </div>
               </div>
               <div id="meetingList" class="vertical-stack empty-state">
                 <p>No meetings logged yet. Add your first note to build momentum.</p>

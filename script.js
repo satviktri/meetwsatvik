@@ -5,6 +5,7 @@ const meetingList = document.getElementById("meetingList");
 const meetingSearch = document.getElementById("meetingSearch");
 const meetingCount = document.getElementById("meetingCount");
 const templateBtn = document.getElementById("templateBtn");
+const peopleFilter = document.getElementById("peopleFilter");
 const todoForm = document.getElementById("todoForm");
 const todoList = document.getElementById("todoList");
 const taskCount = document.getElementById("taskCount");
@@ -24,6 +25,10 @@ const defaultData = {
 
 const stored = JSON.parse(localStorage.getItem(storageKey) || "null") || defaultData;
 let appData = structuredClone(stored);
+const meetingFilters = {
+  text: "",
+  person: "all"
+};
 
 function persist() {
   localStorage.setItem(storageKey, JSON.stringify(appData));
@@ -40,16 +45,24 @@ function formatDate(dateStr) {
   });
 }
 
-function renderMeetings(filter = "") {
+function renderMeetings() {
   meetingList.innerHTML = "";
-  const filtered = appData.meetings.filter((meeting) =>
-    meeting.title.toLowerCase().includes(filter.toLowerCase()) ||
-    meeting.summary.toLowerCase().includes(filter.toLowerCase())
-  );
+  const textFilter = meetingFilters.text.toLowerCase();
+  const personFilter = meetingFilters.person;
+  const filtered = appData.meetings.filter((meeting) => {
+    const people = Array.isArray(meeting.people) ? meeting.people : [];
+    const matchesText =
+      !textFilter ||
+      meeting.title.toLowerCase().includes(textFilter) ||
+      (meeting.summary || "").toLowerCase().includes(textFilter);
+    const matchesPerson = personFilter === "all" ? true : people.includes(personFilter);
+    return matchesText && matchesPerson;
+  });
 
   if (!filtered.length) {
     meetingList.classList.add("empty-state");
-    meetingList.innerHTML = `<p>${filter ? "No matches found." : "No meetings logged yet. Add your first note to build momentum."}</p>`;
+    const hasActiveFilter = Boolean(textFilter) || personFilter !== "all";
+    meetingList.innerHTML = `<p>${hasActiveFilter ? "No matches found." : "No meetings logged yet. Add your first note to build momentum."}</p>`;
     meetingCount.textContent = appData.meetings.length;
     return;
   }
@@ -59,6 +72,8 @@ function renderMeetings(filter = "") {
   filtered
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .forEach((meeting) => {
+      const people = Array.isArray(meeting.people) ? meeting.people : [];
+      const actions = Array.isArray(meeting.actions) ? meeting.actions : [];
       const card = document.createElement("article");
       card.className = "meeting-card";
       card.innerHTML = `
@@ -67,13 +82,41 @@ function renderMeetings(filter = "") {
           <span>${formatDate(meeting.date)}</span>
           <span class="tag">${meeting.focus}</span>
         </div>
+        ${people.length ? `<div class="meeting-people">${people.map((person) => `<span>${person}</span>`).join("")}</div>` : ""}
         <p>${meeting.summary || "No summary"}</p>
-        ${meeting.actions.length ? `<ol class="actions-list">${meeting.actions.map((item) => `<li>${item}</li>`).join("")}</ol>` : ""}
+        ${actions.length ? `<ol class="actions-list">${actions.map((item) => `<li>${item}</li>`).join("")}</ol>` : ""}
       `;
       meetingList.appendChild(card);
     });
 
   meetingCount.textContent = appData.meetings.length;
+}
+
+function refreshPeopleFilterOptions() {
+  if (!peopleFilter) return;
+  const previousValue = peopleFilter.value;
+  const uniquePeople = [
+    ...new Set(
+      appData.meetings.flatMap((meeting) => (Array.isArray(meeting.people) ? meeting.people : []))
+    )
+  ]
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b));
+
+  peopleFilter.innerHTML = '<option value="all">All people</option>';
+  uniquePeople.forEach((person) => {
+    const option = document.createElement("option");
+    option.value = person;
+    option.textContent = person;
+    peopleFilter.appendChild(option);
+  });
+
+  const canKeepSelection = uniquePeople.includes(previousValue);
+  const nextValue = canKeepSelection ? previousValue : "all";
+  peopleFilter.value = nextValue;
+  peopleFilter.disabled = uniquePeople.length === 0;
+
+  meetingFilters.person = peopleFilter.value;
 }
 
 function renderTodos() {
@@ -132,6 +175,10 @@ meetingForm?.addEventListener("submit", (event) => {
     date: meetingForm.meetingDate.value,
     focus: meetingForm.meetingFocus.value,
     summary: meetingForm.meetingSummary.value.trim(),
+    people: meetingForm.meetingPeople.value
+      .split(",")
+      .map((person) => person.trim())
+      .filter(Boolean),
     actions: meetingForm.meetingActions.value
       .split("\n")
       .map((line) => line.trim())
@@ -142,11 +189,18 @@ meetingForm?.addEventListener("submit", (event) => {
   appData.meetings.push(meeting);
   persist();
   meetingForm.reset();
-  renderMeetings(meetingSearch.value);
+  refreshPeopleFilterOptions();
+  renderMeetings();
 });
 
 meetingSearch?.addEventListener("input", (event) => {
-  renderMeetings(event.target.value);
+  meetingFilters.text = event.target.value.trim().toLowerCase();
+  renderMeetings();
+});
+
+peopleFilter?.addEventListener("change", (event) => {
+  meetingFilters.person = event.target.value;
+  renderMeetings();
 });
 
 templateBtn?.addEventListener("click", () => loadTemplate());
@@ -214,6 +268,8 @@ function bindTabs() {
 function hydrate() {
   sideNotes.value = appData.sideNotes || "";
   toggleTheme(appData.theme);
+  meetingFilters.text = meetingSearch?.value.trim().toLowerCase() || "";
+  refreshPeopleFilterOptions();
   renderMeetings();
   renderTodos();
 }

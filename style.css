@@ -1,0 +1,489 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f7f7fb;
+  --card: #ffffff;
+  --text: #111322;
+  --muted: #5c6178;
+  --accent: #5c6cff;
+  --accent-strong: #3842ff;
+  --border: rgba(16, 18, 31, 0.08);
+  --chip-bg: rgba(92, 108, 255, 0.12);
+  --chip-text: #343a9d;
+  --shadow: 0 25px 65px rgba(16, 18, 31, 0.08);
+}
+
+body.dark {
+  --bg: #0f111a;
+  --card: #191c2b;
+  --text: #f4f5fb;
+  --muted: #b0b5d8;
+  --accent: #8f9bff;
+  --accent-strong: #bac1ff;
+  --border: rgba(255, 255, 255, 0.08);
+  --chip-bg: rgba(143, 155, 255, 0.15);
+  --chip-text: #d0d4ff;
+  --shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top left, rgba(92, 108, 255, 0.08), transparent 50%),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 2rem;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.app-shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+h1 {
+  margin: 0.1rem 0;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+}
+
+.subtitle {
+  max-width: 36rem;
+  color: var(--muted);
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  color: var(--accent-strong);
+  margin: 0;
+}
+
+.tabs {
+  display: inline-flex;
+  background: rgba(16, 18, 31, 0.05);
+  border-radius: 999px;
+  padding: 0.25rem;
+  width: fit-content;
+}
+
+.tab {
+  border: none;
+  background: none;
+  font-size: 0.95rem;
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--muted);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.tab.active {
+  background: var(--card);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.tab-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.panel {
+  animation: fade 0.3s ease;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.panel.hidden {
+  display: none;
+}
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.meeting-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.card {
+  background: var(--card);
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.meeting-tools {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.meeting-tools select {
+  min-width: 150px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  padding: 0.45rem 1rem;
+  background: transparent;
+  color: var(--text);
+}
+
+.card-header input[type="search"] {
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  padding: 0.45rem 1rem;
+  background: transparent;
+  color: var(--text);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.meeting-form textarea {
+  min-height: 150px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-weight: 500;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+}
+
+input,
+textarea,
+select {
+  border-radius: 0.85rem;
+  border: 1px solid var(--border);
+  padding: 0.65rem 0.85rem;
+  background: rgba(16, 18, 31, 0.02);
+  color: var(--text);
+}
+
+textarea {
+  resize: vertical;
+}
+
+.primary {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.2rem;
+  border-radius: 0.95rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.primary:hover {
+  background: var(--accent-strong);
+  transform: translateY(-1px);
+}
+
+.ghost-button {
+  border: 1px solid var(--border);
+  background: transparent;
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.ghost-button.subtle {
+  border-style: dashed;
+  opacity: 0.8;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.status-chips {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.chip {
+  background: var(--chip-bg);
+  color: var(--chip-text);
+  border-radius: 1rem;
+  padding: 0.4rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.8rem;
+}
+
+.chip-value {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.divider {
+  width: 1px;
+  height: 40px;
+  background: var(--border);
+}
+
+.vertical-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.meeting-card {
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1rem;
+  position: relative;
+}
+
+.meeting-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.text-button {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.text-button.danger {
+  color: #e45858;
+}
+
+.meeting-card h3 {
+  margin: 0;
+}
+
+.meeting-meta {
+  color: var(--muted);
+  font-size: 0.85rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.meeting-people {
+  margin: 0.35rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.meeting-people span {
+  background: rgba(16, 18, 31, 0.05);
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+
+.tag {
+  background: rgba(92, 108, 255, 0.15);
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+.actions-list {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1rem;
+  color: var(--text);
+}
+
+.actions-list li::marker {
+  color: var(--accent);
+}
+
+.empty-state {
+  color: var(--muted);
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+}
+
+.todo-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.todo-details span {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.todo-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.badge {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+
+.badge.high {
+  border-color: #ff8a80;
+  color: #ff6f61;
+}
+
+.badge.medium {
+  border-color: #ffc764;
+  color: #d68b00;
+}
+
+.badge.low {
+  border-color: #8ad6c2;
+  color: #3a8f7f;
+}
+
+button.complete {
+  border: none;
+  background: rgba(58, 143, 127, 0.15);
+  color: #1d5a4f;
+  border-radius: 0.75rem;
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+}
+
+button.delete {
+  border: none;
+  background: rgba(255, 99, 132, 0.15);
+  color: #c62828;
+  border-radius: 0.75rem;
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+}
+
+.todo-item.completed {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+#sideNotes {
+  width: 100%;
+  border-radius: 1rem;
+  min-height: 300px;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  body {
+    padding: 1.5rem 1rem;
+  }
+
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tabs {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .meeting-tools {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .meeting-tools input,
+  .meeting-tools select {
+    flex: 1;
+  }
+}
+
+@media (max-width: 900px) {
+  .meetings-layout {
+    grid-template-columns: 1fr;
+  }
+}

@@ -130,9 +130,10 @@ h1 {
   gap: 1.5rem;
 }
 
-.meetings-layout {
-  grid-template-columns: minmax(460px, 1.4fr) minmax(280px, 0.8fr);
-  align-items: start;
+.meeting-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .card {
@@ -183,6 +184,13 @@ h1 {
 
 .meeting-form textarea {
   min-height: 150px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 label {
@@ -238,6 +246,11 @@ textarea {
   color: var(--text);
 }
 
+.ghost-button.subtle {
+  border-style: dashed;
+  opacity: 0.8;
+}
+
 .header-actions {
   display: flex;
   align-items: center;
@@ -281,6 +294,25 @@ textarea {
   border-radius: 1rem;
   padding: 1rem;
   position: relative;
+}
+
+.meeting-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.text-button {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.text-button.danger {
+  color: #e45858;
 }
 
 .meeting-card h3 {

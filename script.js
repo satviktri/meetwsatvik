@@ -5,6 +5,8 @@ const meetingList = document.getElementById("meetingList");
 const meetingSearch = document.getElementById("meetingSearch");
 const meetingCount = document.getElementById("meetingCount");
 const templateBtn = document.getElementById("templateBtn");
+const meetingSubmit = document.getElementById("meetingSubmit");
+const cancelEditBtn = document.getElementById("cancelEdit");
 const peopleFilter = document.getElementById("peopleFilter");
 const todoForm = document.getElementById("todoForm");
 const todoList = document.getElementById("todoList");
@@ -29,6 +31,7 @@ const meetingFilters = {
   text: "",
   person: "all"
 };
+let editingMeetingId = null;
 
 function persist() {
   localStorage.setItem(storageKey, JSON.stringify(appData));
@@ -43,6 +46,38 @@ function formatDate(dateStr) {
     hour: "2-digit",
     minute: "2-digit"
   });
+}
+
+function resetMeetingForm() {
+  if (!meetingForm) return;
+  meetingForm.reset();
+  editingMeetingId = null;
+  meetingForm.classList.remove("is-editing");
+  if (meetingSubmit) meetingSubmit.textContent = "Save note";
+  if (cancelEditBtn) cancelEditBtn.hidden = true;
+}
+
+function populateMeetingForm(meeting) {
+  if (!meetingForm) return;
+  meetingForm.meetingTitle.value = meeting.title;
+  meetingForm.meetingDate.value = meeting.date;
+  meetingForm.meetingFocus.value = meeting.focus;
+  meetingForm.meetingSummary.value = meeting.summary || "";
+  meetingForm.meetingPeople.value = (Array.isArray(meeting.people) ? meeting.people : []).join(", ");
+  meetingForm.meetingActions.value = (Array.isArray(meeting.actions) ? meeting.actions : []).join("\n");
+}
+
+function startEditingMeeting(id) {
+  if (!meetingForm) return;
+  const meeting = appData.meetings.find((entry) => entry.id === id);
+  if (!meeting) return;
+  populateMeetingForm(meeting);
+  editingMeetingId = id;
+  meetingForm.classList.add("is-editing");
+  if (meetingSubmit) meetingSubmit.textContent = "Update note";
+  if (cancelEditBtn) cancelEditBtn.hidden = false;
+  document.querySelector('[data-tab="meetings"]')?.click();
+  meetingForm.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function renderMeetings() {
@@ -62,7 +97,10 @@ function renderMeetings() {
   if (!filtered.length) {
     meetingList.classList.add("empty-state");
     const hasActiveFilter = Boolean(textFilter) || personFilter !== "all";
-    meetingList.innerHTML = `<p>${hasActiveFilter ? "No matches found." : "No meetings logged yet. Add your first note to build momentum."}</p>`;
+    const emptyMessage = hasActiveFilter
+      ? "No matches found."
+      : "No previous meetings logged yet. Add your first note to build momentum.";
+    meetingList.innerHTML = `<p>${emptyMessage}</p>`;
     meetingCount.textContent = appData.meetings.length;
     return;
   }
@@ -85,6 +123,10 @@ function renderMeetings() {
         ${people.length ? `<div class="meeting-people">${people.map((person) => `<span>${person}</span>`).join("")}</div>` : ""}
         <p>${meeting.summary || "No summary"}</p>
         ${actions.length ? `<ol class="actions-list">${actions.map((item) => `<li>${item}</li>`).join("")}</ol>` : ""}
+        <div class="meeting-card-actions">
+          <button class="text-button edit-meeting" data-meeting-id="${meeting.id}">Edit</button>
+          <button class="text-button danger delete-meeting" data-meeting-id="${meeting.id}">Remove</button>
+        </div>
       `;
       meetingList.appendChild(card);
     });
@@ -170,7 +212,7 @@ function toggleTheme(force) {
 meetingForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   const meeting = {
-    id: crypto.randomUUID(),
+    id: editingMeetingId || crypto.randomUUID(),
     title: meetingForm.meetingTitle.value.trim(),
     date: meetingForm.meetingDate.value,
     focus: meetingForm.meetingFocus.value,
@@ -186,12 +228,18 @@ meetingForm?.addEventListener("submit", (event) => {
   };
 
   if (!meeting.title || !meeting.date) return;
-  appData.meetings.push(meeting);
+  if (editingMeetingId) {
+    appData.meetings = appData.meetings.map((entry) => (entry.id === editingMeetingId ? meeting : entry));
+  } else {
+    appData.meetings.push(meeting);
+  }
   persist();
-  meetingForm.reset();
+  resetMeetingForm();
   refreshPeopleFilterOptions();
   renderMeetings();
 });
+
+cancelEditBtn?.addEventListener("click", () => resetMeetingForm());
 
 meetingSearch?.addEventListener("input", (event) => {
   meetingFilters.text = event.target.value.trim().toLowerCase();
@@ -206,6 +254,25 @@ peopleFilter?.addEventListener("change", (event) => {
 templateBtn?.addEventListener("click", () => loadTemplate());
 
 themeToggle?.addEventListener("click", () => toggleTheme());
+
+meetingList?.addEventListener("click", (event) => {
+  const target = event.target.closest("button[data-meeting-id]");
+  if (!target) return;
+  const id = target.dataset.meetingId;
+  if (target.classList.contains("delete-meeting")) {
+    if (confirm("Remove this meeting note?")) {
+      appData.meetings = appData.meetings.filter((meeting) => meeting.id !== id);
+      if (editingMeetingId === id) {
+        resetMeetingForm();
+      }
+      persist();
+      refreshPeopleFilterOptions();
+      renderMeetings();
+    }
+  } else if (target.classList.contains("edit-meeting")) {
+    startEditingMeeting(id);
+  }
+});
 
 todoForm?.addEventListener("submit", (event) => {
   event.preventDefault();

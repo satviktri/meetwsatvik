@@ -47,7 +47,7 @@
 
       <main class="tab-panels">
         <section class="panel" id="tab-meetings" role="tabpanel">
-          <div class="panel-grid meetings-layout">
+          <div class="meeting-stack">
             <section class="card">
               <div class="card-header">
                 <div>
@@ -87,7 +87,10 @@
                   Action items (one per line)
                   <textarea id="meetingActions" rows="6" placeholder="Write actions with owners"></textarea>
                 </label>
-                <button type="submit" class="primary">Save note</button>
+                <div class="form-actions">
+                  <button type="submit" class="primary" id="meetingSubmit">Save note</button>
+                  <button type="button" id="cancelEdit" class="ghost-button subtle" hidden>Cancel edit</button>
+                </div>
               </form>
             </section>
 
@@ -95,7 +98,7 @@
               <div class="card-header">
                 <div>
                   <p class="eyebrow">History</p>
-                  <h2>Recent meetings</h2>
+                  <h2>Previous meetings</h2>
                 </div>
                 <div class="meeting-tools">
                   <select id="peopleFilter" disabled>
@@ -105,7 +108,7 @@
                 </div>
               </div>
               <div id="meetingList" class="vertical-stack empty-state">
-                <p>No meetings logged yet. Add your first note to build momentum.</p>
+                <p>No previous meetings logged yet. Add your first note to build momentum.</p>
               </div>
             </section>
           </div>

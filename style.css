@@ -194,10 +194,26 @@ h1 {
   gap: 1.25rem;
 }
 
-.remote-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
+.repo-target {
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  background: color-mix(in srgb, var(--card), transparent 10%);
+}
+
+.repo-target p {
+  margin: 0;
+}
+
+.repo-name {
+  font-weight: 600;
+}
+
+.repo-path {
+  font-family: "JetBrains Mono", monospace;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .remote-actions {

@@ -17,11 +17,6 @@ const clearSideNotes = document.getElementById("clearSideNotes");
 const themeToggle = document.getElementById("themeToggle");
 const themeLabel = document.querySelector(".theme-label");
 const remoteForm = document.getElementById("remoteSyncForm");
-const remoteOwnerInput = document.getElementById("remoteOwner");
-const remoteRepoInput = document.getElementById("remoteRepo");
-const remoteBranchInput = document.getElementById("remoteBranch");
-const remoteFolderInput = document.getElementById("remoteFolder");
-const remoteFileInput = document.getElementById("remoteFile");
 const remoteTokenInput = document.getElementById("remoteToken");
 const remoteAutoSyncInput = document.getElementById("remoteAutoSync");
 const pullRemoteBtn = document.getElementById("pullRemote");
@@ -37,10 +32,10 @@ const defaultData = {
   theme: "light"
 };
 const defaultRemoteSettings = {
-  owner: "",
-  repo: "",
+  owner: "satviktri",
+  repo: "meetwsatvik",
   branch: "main",
-  folder: "meeting-notes",
+  folder: "data",
   file: "meetings.json",
   token: "",
   autoSync: false
@@ -48,8 +43,12 @@ const defaultRemoteSettings = {
 
 const stored = JSON.parse(localStorage.getItem(storageKey) || "null") || defaultData;
 let appData = structuredClone(stored);
-const storedRemote = JSON.parse(localStorage.getItem(remoteSettingsKey) || "null") || defaultRemoteSettings;
-let remoteSettings = { ...defaultRemoteSettings, ...storedRemote };
+const storedRemote = JSON.parse(localStorage.getItem(remoteSettingsKey) || "null") || {};
+let remoteSettings = {
+  ...defaultRemoteSettings,
+  token: storedRemote.token || "",
+  autoSync: Boolean(storedRemote.autoSync)
+};
 const meetingFilters = {
   text: "",
   person: "all"
@@ -77,19 +76,14 @@ function isRemoteConfigured() {
 
 function updateRemoteControls(isBusy = false) {
   const configured = isRemoteConfigured();
-  const disableActions = !configured || isBusy;
-  if (pullRemoteBtn) pullRemoteBtn.disabled = disableActions;
-  if (pushRemoteBtn) pushRemoteBtn.disabled = disableActions;
-  if (remoteAutoSyncInput) remoteAutoSyncInput.disabled = !configured;
+  const missingToken = !remoteSettings.token?.trim();
+  if (pullRemoteBtn) pullRemoteBtn.disabled = !configured || isBusy;
+  if (pushRemoteBtn) pushRemoteBtn.disabled = !configured || isBusy || missingToken;
+  if (remoteAutoSyncInput) remoteAutoSyncInput.disabled = !configured || missingToken;
 }
 
 function populateRemoteForm() {
   if (!remoteForm) return;
-  if (remoteOwnerInput) remoteOwnerInput.value = remoteSettings.owner;
-  if (remoteRepoInput) remoteRepoInput.value = remoteSettings.repo;
-  if (remoteBranchInput) remoteBranchInput.value = remoteSettings.branch;
-  if (remoteFolderInput) remoteFolderInput.value = remoteSettings.folder;
-  if (remoteFileInput) remoteFileInput.value = remoteSettings.file;
   if (remoteTokenInput) remoteTokenInput.value = remoteSettings.token;
   if (remoteAutoSyncInput) remoteAutoSyncInput.checked = Boolean(remoteSettings.autoSync);
   updateRemoteControls();
@@ -99,6 +93,10 @@ function buildRemotePath(settings = remoteSettings) {
   const folder = (settings.folder || "").trim().replace(/^\/+|\/+$/g, "");
   const file = (settings.file || "meetings.json").trim() || "meetings.json";
   return folder ? `${folder}/${file}` : file;
+}
+
+function getRemoteDisplayPath() {
+  return `${remoteSettings.owner}/${remoteSettings.repo}/${buildRemotePath()}`;
 }
 
 function encodeContent(str) {
@@ -145,7 +143,7 @@ async function fetchRemoteFile(settings = remoteSettings) {
 }
 
 function queueRemoteSync() {
-  if (!remoteSettings.autoSync || !isRemoteConfigured()) return;
+  if (!remoteSettings.autoSync || !isRemoteConfigured() || !remoteSettings.token?.trim()) return;
   clearTimeout(remoteSyncTimer);
   remoteSyncTimer = setTimeout(() => {
     syncMeetingsToGitHub({ silent: true }).catch((error) => console.error(error));
@@ -154,10 +152,14 @@ function queueRemoteSync() {
 
 async function syncMeetingsToGitHub({ silent = false } = {}) {
   if (!isRemoteConfigured()) {
-    if (!silent) setRemoteStatus("Add your repo details first.", "warning");
+    if (!silent) setRemoteStatus("Repository target is missing.", "warning");
     return;
   }
-  if (!silent) setRemoteStatus("Syncing with GitHub…", "info");
+  if (!remoteSettings.token?.trim()) {
+    if (!silent) setRemoteStatus("Add your GitHub token to push.", "warning");
+    return;
+  }
+  if (!silent) setRemoteStatus(`Syncing ${getRemoteDisplayPath()}…`, "info");
   updateRemoteControls(true);
   try {
     const remoteFile = await fetchRemoteFile();
@@ -185,7 +187,7 @@ async function syncMeetingsToGitHub({ silent = false } = {}) {
       const error = await response.json().catch(() => ({}));
       throw new Error(error.message || "Unable to push file");
     }
-    if (!silent) setRemoteStatus("Meetings synced to GitHub.", "success");
+    if (!silent) setRemoteStatus(`Meetings synced to ${getRemoteDisplayPath()}.`, "success");
   } catch (error) {
     if (!silent) setRemoteStatus(`GitHub sync failed: ${error.message}`, "error");
     console.error(error);
@@ -196,10 +198,10 @@ async function syncMeetingsToGitHub({ silent = false } = {}) {
 
 async function pullMeetingsFromGitHub({ silent = false } = {}) {
   if (!isRemoteConfigured()) {
-    if (!silent) setRemoteStatus("Add your repo details first.", "warning");
+    if (!silent) setRemoteStatus("Repository target is missing.", "warning");
     return;
   }
-  if (!silent) setRemoteStatus("Fetching latest meetings…", "info");
+  if (!silent) setRemoteStatus(`Fetching ${getRemoteDisplayPath()}…`, "info");
   updateRemoteControls(true);
   try {
     const remoteFile = await fetchRemoteFile();
@@ -473,21 +475,28 @@ meetingList?.addEventListener("click", (event) => {
   }
 });
 
-remoteForm?.addEventListener("submit", (event) => {
-  event.preventDefault();
-  remoteSettings = {
-    ...remoteSettings,
-    owner: remoteOwnerInput?.value.trim() || "",
-    repo: remoteRepoInput?.value.trim() || "",
-    branch: remoteBranchInput?.value.trim() || "main",
-    folder: remoteFolderInput?.value.trim() || "",
-    file: remoteFileInput?.value.trim() || "meetings.json",
-    token: remoteTokenInput?.value.trim() || "",
-    autoSync: Boolean(remoteAutoSyncInput?.checked)
-  };
+remoteForm?.addEventListener("submit", (event) => event.preventDefault());
+
+remoteTokenInput?.addEventListener("input", (event) => {
+  remoteSettings.token = event.target.value.trim();
+  if (!remoteSettings.token && remoteAutoSyncInput) {
+    remoteSettings.autoSync = false;
+    remoteAutoSyncInput.checked = false;
+  }
   persistRemoteSettings();
-  populateRemoteForm();
-  setRemoteStatus("Remote settings saved.", "success");
+  updateRemoteControls();
+});
+
+remoteAutoSyncInput?.addEventListener("change", (event) => {
+  remoteSettings.autoSync = Boolean(event.target.checked);
+  persistRemoteSettings();
+  if (remoteSettings.autoSync && remoteSettings.token?.trim()) {
+    setRemoteStatus("Auto-sync enabled. We'll push updates after changes.", "success");
+    queueRemoteSync();
+  } else if (!remoteSettings.autoSync) {
+    setRemoteStatus("Auto-sync disabled.", "info");
+  }
+  updateRemoteControls();
 });
 
 pullRemoteBtn?.addEventListener("click", () => pullMeetingsFromGitHub());

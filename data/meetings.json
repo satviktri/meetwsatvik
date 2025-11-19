@@ -1,4 +1,20 @@
 {
-  "exportedAt": "2025-11-19T00:24:30.451Z",
-  "meetings": []
+  "exportedAt": "2025-11-19T00:25:06.991Z",
+  "meetings": [
+    {
+      "id": "9c1920a1-d96a-4a5e-a181-65a6d98a9835",
+      "title": "meeting",
+      "date": "2025-11-18T19:24",
+      "focus": "1:1",
+      "summary": "Discussion highlights:\n• What's blocking us?\n• Wins we should celebrate\n• Metrics pulse",
+      "people": [
+        "Tessa"
+      ],
+      "actions": [
+        "@Alex ⏤ Prepare stakeholder summary",
+        "@Priya ⏤ Draft roadmap slides",
+        "@Sam ⏤ Follow up with finance"
+      ]
+    }
+  ]
 }

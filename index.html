@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meet with Satvik</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Meetings hub</p>
+          <h1>Meet with Satvik</h1>
+          <p class="subtitle">Capture notes, keep track of action items, and never lose your side ideas again.</p>
+        </div>
+        <div class="header-actions">
+          <button id="themeToggle" class="ghost-button" aria-label="Toggle color theme">
+            <span class="theme-label">Light mode</span>
+          </button>
+          <span class="divider" aria-hidden="true"></span>
+          <div class="status-chips">
+            <div class="chip">
+              <span class="chip-label">Meetings logged</span>
+              <span id="meetingCount" class="chip-value">0</span>
+            </div>
+            <div class="chip">
+              <span class="chip-label">Open tasks</span>
+              <span id="taskCount" class="chip-value">0</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="meetings" role="tab" aria-selected="true">Meeting notes</button>
+        <button class="tab" data-tab="todo" role="tab">To-do list</button>
+        <button class="tab" data-tab="sidenotes" role="tab">Side notes</button>
+      </div>
+
+      <main class="tab-panels">
+        <section class="panel" id="tab-meetings" role="tabpanel">
+          <div class="meeting-stack">
+            <section class="card">
+              <div class="card-header">
+                <div>
+                  <p class="eyebrow">Add meeting</p>
+                  <h2>New meeting note</h2>
+                </div>
+                <button id="templateBtn" class="ghost-button">Load template</button>
+              </div>
+              <form id="meetingForm" class="form meeting-form">
+                <label>
+                  Meeting title
+                  <input type="text" id="meetingTitle" required placeholder="Meet with Satvik" />
+                </label>
+                <label>
+                  Date & time
+                  <input type="datetime-local" id="meetingDate" required />
+                </label>
+                <label>
+                  Meeting focus
+                  <select id="meetingFocus">
+                    <option value="Status">Status update</option>
+                    <option value="Planning">Planning</option>
+                    <option value="Retrospective">Retro</option>
+                    <option value="Workshop">Workshop</option>
+                    <option value="1:1">1:1</option>
+                  </select>
+                </label>
+                <label>
+                  Who did you meet?
+                  <input type="text" id="meetingPeople" placeholder="Satvik, Priya" />
+                </label>
+                <label>
+                  Highlights
+                  <textarea id="meetingSummary" rows="6" placeholder="Key takeaways..."></textarea>
+                </label>
+                <label>
+                  Action items (one per line)
+                  <textarea id="meetingActions" rows="6" placeholder="Write actions with owners"></textarea>
+                </label>
+                <div class="form-actions">
+                  <button type="submit" class="primary" id="meetingSubmit">Save note</button>
+                  <button type="button" id="cancelEdit" class="ghost-button subtle" hidden>Cancel edit</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="card meetings-list">
+              <div class="card-header">
+                <div>
+                  <p class="eyebrow">History</p>
+                  <h2>Previous meetings</h2>
+                </div>
+                <div class="meeting-tools">
+                  <select id="peopleFilter" disabled>
+                    <option value="all">All people</option>
+                  </select>
+                  <input type="search" id="meetingSearch" placeholder="Search" />
+                </div>
+              </div>
+              <div id="meetingList" class="vertical-stack empty-state">
+                <p>No previous meetings logged yet. Add your first note to build momentum.</p>
+              </div>
+            </section>
+
+            <section class="card cloud-card">
+              <div class="card-header">
+                <div>
+                  <p class="eyebrow">Cloud backup</p>
+                  <h2>GitHub sync</h2>
+                </div>
+                <p class="muted">
+                  Previous meetings automatically sync with <code>satviktri/meetwsatvik</code>. Add a token to push changes or
+                  pull the latest snapshot anywhere.
+                </p>
+              </div>
+              <form id="remoteSyncForm" class="form remote-form">
+                <div class="repo-target" aria-live="polite">
+                  <p class="repo-name">satviktri/meetwsatvik</p>
+                  <p class="repo-path">data/meetings.json</p>
+                </div>
+                <label>
+                  GitHub personal access token
+                  <input type="password" id="remoteToken" placeholder="ghp_..." autocomplete="off" />
+                </label>
+                <label class="toggle auto-sync">
+                  <input type="checkbox" id="remoteAutoSync" />
+                  <span>Auto-sync previous meetings when they change</span>
+                </label>
+                <div class="remote-actions">
+                  <button type="button" id="pullRemote" class="ghost-button subtle">Pull latest</button>
+                  <button type="button" id="pushRemote" class="primary">Push now</button>
+                </div>
+                <p class="remote-status" id="remoteStatus" aria-live="polite"></p>
+                <p class="helper-text">Tokens stay in this browser only and are required only for pushing updates.</p>
+              </form>
+            </section>
+          </div>
+        </section>
+
+        <section class="panel hidden" id="tab-todo" role="tabpanel" aria-hidden="true">
+          <div class="panel-grid">
+            <section class="card">
+              <div class="card-header">
+                <div>
+                  <p class="eyebrow">Add task</p>
+                  <h2>New to-do</h2>
+                </div>
+              </div>
+              <form id="todoForm" class="form">
+                <label>
+                  Task
+                  <input type="text" id="todoText" required placeholder="Prepare slides" />
+                </label>
+                <label>
+                  Due date
+                  <input type="date" id="todoDue" />
+                </label>
+                <label>
+                  Priority
+                  <select id="todoPriority">
+                    <option value="Low">Low</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="High">High</option>
+                  </select>
+                </label>
+                <button type="submit" class="primary">Add task</button>
+              </form>
+            </section>
+
+            <section class="card">
+              <div class="card-header">
+                <div>
+                  <p class="eyebrow">Tasks</p>
+                  <h2>Focus queue</h2>
+                </div>
+                <div class="filters">
+                  <label class="toggle">
+                    <input type="checkbox" id="showCompleted" />
+                    <span>Show completed</span>
+                  </label>
+                </div>
+              </div>
+              <ul id="todoList" class="vertical-stack empty-state">
+                <li>No tasks yet. Capture what needs to happen after your meetings.</li>
+              </ul>
+            </section>
+          </div>
+        </section>
+
+        <section class="panel hidden" id="tab-sidenotes" role="tabpanel" aria-hidden="true">
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">Scratchpad</p>
+                <h2>Side notes</h2>
+              </div>
+              <button id="clearSideNotes" class="ghost-button">Clear</button>
+            </div>
+            <textarea id="sideNotes" rows="12" placeholder="Capture tangents, quotes, or ideas without leaving the meeting."></textarea>
+            <p class="muted">Autosaved locally ⏤ feel free to free-type.</p>
+          </section>
+        </section>
+      </main>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
